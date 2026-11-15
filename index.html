@@ -257,11 +257,21 @@ function loadThree(cb){
   window.__threeQ.push(cb);
   if(window.__threeLoading)return;
   window.__threeLoading=true;
-  var s=document.createElement('script');
-  s.src='three.min.js';
-  s.onload=function(){var q=window.__threeQ;window.__threeQ=[];for(var i=0;i<q.length;i++)q[i]();};
-  s.onerror=function(){window.__threeLoading=false;};
-  document.head.appendChild(s);
+  var srcs=['https://registry.npmmirror.com/three/0.159.0/files/build/three.min.js','three.min.js'];
+  var i=0;
+  function next(){
+    if(i>=srcs.length){window.__threeLoading=false;return;}
+    var s=document.createElement('script');
+    s.src=srcs[i++];
+    s.onload=function(){
+      if(!window.THREE){next();return;}
+      var q=window.__threeQ;window.__threeQ=[];
+      for(var k=0;k<q.length;k++)q[k]();
+    };
+    s.onerror=function(){next();};
+    document.head.appendChild(s);
+  }
+  next();
 }
 
 function enterCake(){
